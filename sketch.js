@@ -367,10 +367,17 @@ function onMidiEnabled() {
   WebMidi.inputs.forEach((device, index) => {
     console.log(index, device.name)
   })
-
-  const myKeyboard = WebMidi.inputs[DEFAULT_MIDI_DEVICE_ID]
-  myKeyboard.addListener('noteon', noteOn, { channels: [1] })
-  myKeyboard.addListener('noteoff', noteOff, { channels: [1] })
+  let deviceID = DEFAULT_MIDI_DEVICE_ID
+  if (WebMidi.inputs.length == 1) 
+    deviceID = 0
+  if (WebMidi.inputs.length > 0) {
+    const myKeyboard = WebMidi.inputs[deviceID]
+    myKeyboard.addListener('noteon', noteOn, { channels: [1] })
+    myKeyboard.addListener('noteoff', noteOff, { channels: [1] })
+  } else {
+    console.err('No MIDI device is found. Refresh after connecting a new device.')
+    window.alert('No MIDI device is found. Refresh after connecting a new device.')
+  }
 }
 
 function noteOn(e) {
