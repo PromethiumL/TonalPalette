@@ -195,6 +195,7 @@ function drawControls() {
 function drawButtons() {
   buttons.settingsBtn.position(width - 100, 30)
   buttons.clearBtn.position(width - 170, 30)
+  buttons.aboutBtn.position(width - 240, 30)
 
   // Visibility
   for (const btnName in buttons) {
@@ -213,6 +214,11 @@ function initButtons() {
   buttons.clearBtn.class('fa-trash')
   buttons.clearBtn.hoverAnimation = 'fa-shake'
   buttons.clearBtn.mousePressed(() => scene.circles.length = 0)
+
+  buttons.aboutBtn = createButton('')
+  buttons.aboutBtn.class('fa-duo-tone fa-circle-info')
+  buttons.aboutBtn.hoverAnimation = 'fa-beat'
+  buttons.aboutBtn.mousePressed(()=>window.open('https://github.com/PromethiumL/TonalPalette'))
 
   for (const btnName in buttons) {
     const btn = buttons[btnName]
