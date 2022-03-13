@@ -6,3 +6,17 @@ html, body {
 canvas {
   display: block;
 }
+
+.img-btn {
+  color: #555;
+  font-size: 3em;
+  background: none;
+  border: none;
+  /* transition: all ease-in-out .3s; */
+}
+
+.img-btn:hover {
+  /* transform: rotate(60deg); */
+  cursor: pointer;
+  color: #e9e95d;
+}

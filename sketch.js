@@ -18,12 +18,14 @@ const PITCH_RANGE = MAX_PITCH - MIN_PITCH + 1
 
 let SHOW_NOTE_CAPTION = false
 let SHOW_CIRCLE = true
+let SHOW_BUTTONS = true
 
 let bgHue = 160
 
 let estimation = {}
 
 let controls = {}
+let buttons = {}
 
 class Control {
   height = 20
@@ -153,7 +155,7 @@ class Slider extends Control {
 
 function initControls() {
   controls.tonalEstimatorWindowSize = new Slider('Tonal Estimator Window [Experimental]', 5, 50, 15)
-  
+
   controls.maxVelocity = new Slider('Max Y Velocity', 0, 5, 0.75)
   controls.bgTransitionSpeed = new Slider('Background Transition Speed', .1, 10, 3)
   controls.particleNoiseStep = new Slider('Particle Noise Step', 0, 0.5, 0.1)
@@ -190,6 +192,38 @@ function drawControls() {
   }
 }
 
+function drawButtons() {
+  buttons.settingsBtn.position(width - 100, 30)
+  buttons.clearBtn.position(width - 170, 30)
+
+  // Visibility
+  for (const btnName in buttons) {
+    const btn = buttons[btnName]
+    SHOW_BUTTONS ? btn.show() : btn.hide()
+  }
+}
+
+function initButtons() {
+  buttons.settingsBtn = createButton('')
+  buttons.settingsBtn.class('fa-gear')
+  buttons.settingsBtn.hoverAnimation = 'fa-spin'
+  buttons.settingsBtn.mousePressed(() => { screenIndex = screenIndex == MAIN ? SETTINGS_PAGE : MAIN })
+
+  buttons.clearBtn = createButton('')
+  buttons.clearBtn.class('fa-trash')
+  buttons.clearBtn.hoverAnimation = 'fa-shake'
+  buttons.clearBtn.mousePressed(() => scene.circles.length = 0)
+
+  for (const btnName in buttons) {
+    const btn = buttons[btnName]
+    btn.addClass('img-btn fa')
+    if (btn.hoverAnimation) {
+      btn.mouseOver(() => btn.addClass(btn.hoverAnimation))
+      btn.mouseOut(() => btn.removeClass(btn.hoverAnimation))
+    }
+  }
+}
+
 function keyPressed() {
   if (key == 'c' || key == 'C') {
     scene.circles.length = 0
@@ -209,6 +243,10 @@ function keyPressed() {
     for (const c in controls)
       obj[c] = controls[c].value
     console.log(obj)
+  }
+
+  if (key == 'h') {
+    SHOW_BUTTONS = !SHOW_BUTTONS
   }
 }
 
@@ -368,7 +406,7 @@ function onMidiEnabled() {
     console.log(index, device.name)
   })
   let deviceID = DEFAULT_MIDI_DEVICE_ID
-  if (WebMidi.inputs.length == 1) 
+  if (WebMidi.inputs.length == 1)
     deviceID = 0
   if (WebMidi.inputs.length > 0) {
     const myKeyboard = WebMidi.inputs[deviceID]
@@ -545,11 +583,16 @@ function plotEstimationBar(est) {
   }
 }
 
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight)
+}
+
 function setup() {
   createCanvas(windowWidth, windowHeight)
   setupMidi(onMidiEnabled)
   colorMode(HSL, 360, 1, 1, 1)
   initControls()
+  initButtons()
 }
 
 function draw() {
@@ -558,7 +601,7 @@ function draw() {
   scene.update()
   plotEstimation(estimation)
   drawControls()
-
+  drawButtons()
   // stroke(0)
   // push()
   // fill(0)
