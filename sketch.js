@@ -218,7 +218,7 @@ function initButtons() {
   buttons.aboutBtn = createButton('')
   buttons.aboutBtn.class('fa-duo-tone fa-circle-info')
   buttons.aboutBtn.hoverAnimation = 'fa-beat'
-  buttons.aboutBtn.mousePressed(()=>window.open('https://github.com/PromethiumL/TonalPalette'))
+  buttons.aboutBtn.mousePressed(() => window.open('https://github.com/PromethiumL/TonalPalette'))
 
   for (const btnName in buttons) {
     const btn = buttons[btnName]
@@ -481,7 +481,22 @@ function myBackground() {
 }
 
 function pitch2hue(pitch) {
-  return (pitch + 3) * 5 % 12 / 12 * 360
+  const hues = [
+    .2199,
+    .1480,
+    .1273,
+    .0886,
+    .0571,
+    .9993,
+    .9063,
+    .7800,
+    .6463,
+    .4797,
+    .5332,
+    .4329
+  ]
+  const i = (pitch) * 7 % 12
+  return hues[i] * 360
 }
 
 function plotEstimation(est) {
