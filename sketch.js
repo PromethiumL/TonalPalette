@@ -10,14 +10,8 @@ const MAIN = 2
 
 let screenIndex = MAIN
 
-const DEFAULT_MIDI_DEVICE_ID = 1
+const DEFAULT_MIDI_DEVICE_ID = 0
 
-const MIN_PITCH = 36
-const MAX_PITCH = 96
-const PITCH_RANGE = MAX_PITCH - MIN_PITCH + 1
-
-let SHOW_NOTE_CAPTION = false
-let SHOW_CIRCLE = true
 let SHOW_BUTTONS = true
 
 let bgHue = 160
@@ -91,7 +85,7 @@ class Control {
 }
 
 class Slider extends Control {
-  constructor(caption, min_value, max_value, default_value) {
+  constructor(caption, min_value, max_value, default_value, post_process_func=null) {
     super('slider', caption, { min_value, max_value })
     this.value = (min_value + max_value) / 2
     this.min_value = min_value
@@ -103,6 +97,7 @@ class Slider extends Control {
     } else if (default_value >= min_value && default_value <= max_value) {
       this.value = default_value
     }
+    this.post_process_func = post_process_func
   }
 
   drawControl(x) {
@@ -149,12 +144,20 @@ class Slider extends Control {
       this.min_value,
       this.max_value
     )
+    if (this.post_process_func) {
+      this.value = this.post_process_func(this.value)
+    }
     // console.log('update', this.value)
   }
 }
 
 function initControls() {
+  controls.showNoteCaption = new Slider('Toggle Note Caption', 0, 1, 0, (x) => Math.round(x))
+
   controls.tonalEstimatorWindowSize = new Slider('Tonal Estimator Window [Experimental]', 5, 50, 15)
+
+  controls.minPitch = new Slider('Min Pitch', 0, 64, 36, x => Math.round(x))
+  controls.maxPitch = new Slider('Max Pitch', 72, 127, 96, x => Math.round(x))
 
   controls.maxVelocity = new Slider('Max Y Velocity', 0, 5, 0.75)
   controls.bgTransitionSpeed = new Slider('Background Transition Speed', .1, 10, 3)
@@ -377,14 +380,14 @@ class Circle extends SceneObject {
   }
 
   show() {
-    if (SHOW_CIRCLE) {
+    if (controls.showNoteCaption < .5) {
       push()
       noStroke()
       fill(this.color, this.color, this.color, this.color)
       ellipse(this.x, this.y, this.radius, this.radius)
       pop()
     }
-    if (SHOW_NOTE_CAPTION) {
+    if (controls.showNoteCaption > .5) {
       push()
       textAlign(CENTER, CENTER)
       textSize(3 * this.radius)
@@ -415,6 +418,11 @@ function onMidiEnabled() {
   if (WebMidi.inputs.length == 1)
     deviceID = 0
   if (WebMidi.inputs.length > 0) {
+    deviceID = parseInt(prompt(`Available MIDI Devices: \n ${WebMidi.inputs.map((d, i) => 'Device ' + i + ': ' + d.name + '\n')}`))
+    if (!WebMidi.inputs.map((x, i) => i).find((d, i) => i === deviceID))
+      deviceID = DEFAULT_MIDI_DEVICE_ID
+
+    console.log('Midi Input Device id:', deviceID)
     const myKeyboard = WebMidi.inputs[deviceID]
     myKeyboard.addListener('noteon', noteOn, { channels: [1] })
     myKeyboard.addListener('noteoff', noteOff, { channels: [1] })
@@ -436,7 +444,7 @@ function noteOn(e) {
   // New particle
   if (e.note.rawAttack < 1)
     return
-  const x = map(pitch, MIN_PITCH, MAX_PITCH, 0, width)
+  const x = map(pitch, controls.minPitch, controls.maxPitch, 0, width)
   const y = controls.bottomBorder * height
   push()
   colorMode(HSL)
