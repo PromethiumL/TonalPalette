@@ -1,6 +1,6 @@
 module.exports = {
-    build: {
-        outDir: './dist/TonalPalette',
-        emptyOutDir: true,
-    }
+  build: {
+    outDir: './dist/TonalPalette',
+    emptyOutDir: true,
+  }
 }
