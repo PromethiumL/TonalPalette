@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "serve": "vite"
+    "serve": "vite",
+    "build": "vite build --base=/TonalPalette/"
   },
   "dependencies": {
     "@types/dat.gui": "^0.7.7",
