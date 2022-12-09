@@ -43,10 +43,27 @@ export let controls: Controls = {
 
 export const sketch = (p: P5) => {
   let bgHue = 160
-  const scene = new MainScene(p, controls)
-  const initControls = () => {
-    gui.add({ About: () => { window.open('https://github.com/PromethiumL/TonalPalette') } }, 'About').name('Go To GitHub Page')
 
+  const initMIDIControls = () => {
+    const devices = [...scene.midiMonitor.deviceStates.keys()]
+    const midiInputOptions = gui.addFolder('Midi Input Devices')
+    midiInputOptions.open()
+    console.log('midi devices to controls', scene.midiMonitor.initialized, devices)
+    for (const d of devices) {
+      controls[d] = scene.midiMonitor.deviceStates.get(d) as boolean
+      const controller = midiInputOptions.add(controls, d)
+      controller.onFinishChange(() => {
+        console.log('GUI changed midi ports')
+        const devicesToUse = devices.filter(d => controls[d])
+        localStorage.setItem('midi devices', JSON.stringify(devicesToUse))
+        scene.midiMonitor.setMIDIInputDevices(devicesToUse)
+      })
+    }
+  }
+
+
+  let scene: MainScene
+  const initControls = () => {
     const midiOptions = gui.addFolder('Input')
     // midiOptions.open()
     midiOptions.add(controls, 'showNoteCaption')
@@ -90,23 +107,7 @@ export const sketch = (p: P5) => {
     tonalityOptions.add(controls, 'plotTonalEstimation').name('Show Tonal Distribution')
     tonalityOptions.add(controls, 'plotTonalRanking').name('Show Tonal Ranking')
 
-    gui.width = 400
-  }
-  const initMIDIControls = () => {
-    const devices = [...scene.midiMonitor.deviceStates.keys()]
-    const midiInputOptions = gui.addFolder('Midi Input Devices')
-    midiInputOptions.open()
-    console.log('midi devices to controls', scene.midiMonitor.initialized, devices)
-    for (const d of devices) {
-      controls[d] = scene.midiMonitor.deviceStates.get(d) as boolean
-      const controller = midiInputOptions.add(controls, d)
-      controller.onFinishChange(() => {
-        console.log('GUI changed midi ports')
-        const devicesToUse = devices.filter(d => controls[d])
-        localStorage.setItem('midi devices', JSON.stringify(devicesToUse))
-        scene.midiMonitor.setMIDIInputDevices(devicesToUse)
-      })
-    }
+    gui.width = 600
   }
 
   p.keyPressed = () => {
@@ -118,11 +119,17 @@ export const sketch = (p: P5) => {
   p.setup = () => {
     p.createCanvas(p.windowWidth, p.windowHeight)
     p.colorMode(p.HSL, 360, 1, 1, 1)
-    initControls()
 
+    // Add about btn to the gui controls
+    gui.add({ About: () => { window.open('https://github.com/PromethiumL/TonalPalette') } }, 'About').name('Go To GitHub Page')
 
+    // Add event listener before monitor (in scene) being created below.
     window.addEventListener('onMidiInitialized', initMIDIControls)
+
+    scene = new MainScene(p, controls)
     scene.groups.circles = []
+
+    initControls()
   }
 
   p.draw = () => {
