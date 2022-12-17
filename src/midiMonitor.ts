@@ -27,7 +27,8 @@ export class MidiMonitor {
   }
 
   setMIDIInputDevices(deviceNames: string[]) {
-    WebMidi.removeListener()
+    for (const inputDevice of WebMidi.inputs)
+      inputDevice.removeListener()
     for (const key of this.deviceStates.keys())
       this.deviceStates.set(key, false)
     const names = new Set(deviceNames)

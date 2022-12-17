@@ -10,5 +10,3 @@ Demo: Https://promethium.cc/TonalPalette
 
 * Key `H` to toggle setting visibility
 * Key `C` to clear all the on-screen particles
-
-> Notice: Currently due to a WebMIDI.js bug, Changing MIDI devices requires a page refresh.
