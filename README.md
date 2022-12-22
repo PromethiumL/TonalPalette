@@ -4,7 +4,7 @@ A Real-time MIDI visualizer for harmony exploration, mainly written in P5.js and
 
 Demo: Https://promethium.cc/TonalPalette
 
-![demo](***REMOVED***apps/TonalPalette/screenshots/demo.png)
+![demo](./screenshots/demo.png)
 
 ## Keyboard Shortcuts
 
